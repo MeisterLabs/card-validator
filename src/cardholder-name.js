@@ -1,11 +1,11 @@
-var isString = require('lodash/lang/isString');
+'use strict';
 
 function verification(isValid) {
   return {isValid: isValid};
 }
 
 function cardholderName(value) {
-  if (!isString(value)) {
+  if (typeof value !== 'string') {
     return verification(false);
   } else if (value.trim().length > 0) {
     return verification(true);

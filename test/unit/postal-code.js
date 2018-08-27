@@ -1,3 +1,5 @@
+'use strict';
+
 var expect = require('chai').expect;
 var postalCode = require('../../src/postal-code');
 
@@ -20,6 +22,7 @@ describe('postalCode', function () {
     ],
 
     'accepts valid postal codes': [
+      ['123', {isValid: true, isPotentiallyValid: true}],
       ['1234', {isValid: true, isPotentiallyValid: true}],
       ['12345', {isValid: true, isPotentiallyValid: true}],
       ['12345', {isValid: true, isPotentiallyValid: true}],
@@ -33,16 +36,16 @@ describe('postalCode', function () {
       ['hello world', {isValid: true, isPotentiallyValid: true}]
     ],
 
-    'returns isPotentiallyValid for shorter-than-4 strings': [
+    'returns isPotentiallyValid for shorter-than-3 strings': [
       ['', {isValid: false, isPotentiallyValid: true}],
       ['1', {isValid: false, isPotentiallyValid: true}],
-      ['12', {isValid: false, isPotentiallyValid: true}],
-      ['123', {isValid: false, isPotentiallyValid: true}]
+      ['12', {isValid: false, isPotentiallyValid: true}]
     ]
   };
 
   Object.keys(describes).forEach(function (key) {
     var tests = describes[key];
+
     describe(key, function () {
       tests.forEach(function (test) {
         var arg = test[0];
@@ -50,9 +53,40 @@ describe('postalCode', function () {
 
         it('returns ' + JSON.stringify(output) + ' for "' + arg + '"', function () {
           expect(postalCode(arg)).to.deep.equal(output);
-        })
+        });
       });
     });
   });
 
+  describe('custom min length', function () {
+    it('uses default min length when no minLength option is passed', function () {
+      expect(postalCode('123')).to.deep.equal({
+        isValid: true,
+        isPotentiallyValid: true
+      });
+      expect(postalCode('123', {})).to.deep.equal({
+        isValid: true,
+        isPotentiallyValid: true
+      });
+      expect(postalCode('12')).to.deep.equal({
+        isValid: false,
+        isPotentiallyValid: true
+      });
+      expect(postalCode('12', {})).to.deep.equal({
+        isValid: false,
+        isPotentiallyValid: true
+      });
+    });
+
+    it('allows passing in a custom min length', function () {
+      expect(postalCode('123', {minLength: 4})).to.deep.equal({
+        isValid: false,
+        isPotentiallyValid: true
+      });
+      expect(postalCode('1234', {minLength: 4})).to.deep.equal({
+        isValid: true,
+        isPotentiallyValid: true
+      });
+    });
+  });
 });

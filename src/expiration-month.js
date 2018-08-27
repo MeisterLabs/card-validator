@@ -1,4 +1,4 @@
-var isString = require('lodash/lang/isString');
+'use strict';
 
 function verification(isValid, isPotentiallyValid, isValidForThisYear) {
   return {
@@ -12,10 +12,10 @@ function expirationMonth(value) {
   var month, result;
   var currentMonth = new Date().getMonth() + 1;
 
-  if (!isString(value)) {
+  if (typeof value !== 'string') {
     return verification(false, false);
   }
-  if ((value.replace(/\s/g, '') === '') || (value === '0')) {
+  if (value.replace(/\s/g, '') === '' || value === '0') {
     return verification(false, true);
   }
   if (!/^\d*$/.test(value)) {

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   number: require('./src/card-number'),
   expirationDate: require('./src/expiration-date'),
@@ -5,5 +7,6 @@ module.exports = {
   expirationYear: require('./src/expiration-year'),
   cvv: require('./src/cvv'),
   postalCode: require('./src/postal-code'),
-  cardholderName: require('./src/cardholder-name')
+  cardholderName: require('./src/cardholder-name'),
+  creditCardType: require('credit-card-type')
 };

@@ -1,3 +1,59 @@
+5.0.0
+=====
+
+- Update `credit-card-type` to v7.0.0
+
+*Breaking Changes*
+- Mastercard enum changed from `master-card` to `mastercard`
+
+4.3.0
+=====
+
+- Support custom card brands
+- Require minimum version of credit-card-type to be v6.2.0
+
+4.2.0
+=====
+
+- Allow `maxElapsedYear` to be configurable in `expirationYear` and `expirationDate` (thanks @wozaki)
+
+4.1.1
+=====
+
+- Update `credit-card-type` to v6.0.0
+
+4.1.0
+=====
+
+- Add options object for postal code validation to specify min length
+
+4.0.0
+=====
+
+- __Breaking change__: Remove `dist` files. You must use `npm` to use this module
+- __Breaking change__: Remove support for primitive constructors like `new String()`
+
+3.0.1
+=====
+
+- Fix postal code validation to be valid if 3 or more characters
+
+3.0.0
+=====
+
+- correctly identify Maestro cards beginning with `6`
+- __Breaking change__: The format of the `card` object returned has changed. `pattern` has been replaced by `prefixPattern` and `exactPattern`.
+
+2.3.0
+=====
+
+- valid.expirationDate can take an object with month and year fields or a string value
+
+2.2.8
+=====
+
+- Update `dist` to include version `4.0.3` of credit-card-type
+
 2.2.7
 =====
 

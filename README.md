@@ -8,13 +8,15 @@ Credit Card Validator will also provide a determined card type (using [credit-ca
 
 ## Download
 
-You can install `card-validator` through `npm`. The npm module also includes the built, UMD bundle and its minified variant under `dist/`. If you use the pre-built versions in the browser, the top-level function `cardValidator` is exposed.
+You can install `card-validator` through `npm`.
 
 ```
 npm install card-validator
 ```
 
 ## Example
+
+### Using a CommonJS build tool (browserify, webpack, etc)
 
 ```javascript
 var valid = require('card-validator');
@@ -43,8 +45,6 @@ if (numberValidation.card) {
   card: {
     niceType: 'American Express',
     type: 'american-express',
-    pattern: '^3([47]\\d*)?$',
-    isAmex: true,
     gaps: [4, 10],
     lengths: [15],
     code: {name: 'CID', size: 4}
@@ -210,7 +210,9 @@ A fake session where a user is entering a card number may look like:
 
 - - -
 
-#### `valid.expirationDate(value: string): object`
+#### `valid.expirationDate(value: string|object, maxElapsedYear: integer): object`
+
+The `maxElapsedYear` has a default value of 19. It can be overridden by passing in an `integer` as a second argument.
 
 ```javascript
 {
@@ -223,39 +225,104 @@ A fake session where a user is entering a card number may look like:
 
 `expirationDate` will parse strings in a variety of formats:
 
-| Input | Output |
-| ----- | ------ |
-| `'10/19'`<br/>`'10 / 19'`<br />`'1019'`<br/>`'10 19'` | `{month: '10', year: '19'}` |
-| `'10/2019'`<br/>`'10 / 2019'`<br />`'102019'`<br/>`'10 2019'`<br/>`'10 19'` | `{month: '10', year: '2019'}` |
+| Input                                                                                     | Output                        |
+|-------------------------------------------------------------------------------------------|-------------------------------|
+| `'10/19'`<br/>`'10 / 19'`<br />`'1019'`<br/>`'10 19'`                                     | `{month: '10', year: '19'}`   |
+| `'10/2019'`<br/>`'10 / 2019'`<br />`'102019'`<br/>`'10 2019'`<br/>`'10 19'`               | `{month: '10', year: '2019'}` |
+| `{month: '01', year: '19'}`<br/>`{month: '1', year: '19'}`<br/>`{month: 1, year: 19}`     | `{month: '01', year: '19'}`   |
+| `{month: '10', year: '2019'}`<br/>`{month: '1', year: '2019'}`<br/>`{month: 1, year: 19}` | `{month: '10', year: '2019'}` |
 
 - - -
 
-#### `valid.expirationMonth(value: string): boolean`
+#### `valid.expirationMonth(value: string): object`
 
 `expirationMonth` accepts 1 or 2 digit months. `1`, `01`, `10` are all valid entries.
 
+```javascript
+{
+  isValidForThisYear: false,
+  isPotentiallyValid: true,
+  isValid: true
+}
+```
+
 - - -
 
-#### `valid.expirationYear(value: string): boolean`
+#### `valid.expirationYear(value: string, maxElapsedYear: integer): object`
 
 `expirationYear` accepts 2 or 4 digit years. `16` and `2016` are both valid entries.
 
+The `maxElapsedYear` has a default value of 19. It can be overridden by passing in an `integer` as a second argument.
+
+```javascript
+{
+  isCurrentYear: false,
+  isPotentiallyValid: true,
+  isValid: true
+}
+```
+
 - - -
 
-#### `valid.cvv(value: string, maxLength: integer): boolean`
+#### `valid.cvv(value: string, maxLength: integer): object`
 
 The `cvv` validation by default tests for a numeric string of 3 characters in length. The `maxLength` can be overridden by passing in an `integer` as a second argument. You would typically switch this length from 3 to 4 in the case of an American Express card which expects a 4 digit CID.
 
+```javascript
+{
+  isPotentiallyValid: true,
+  isValid: true
+}
+```
+
 - - -
 
-#### `valid.postalCode(value: string): boolean`
+#### `valid.postalCode(value: string, [options: object]): object`
 
 The `postalCode` validation essentially tests for a valid string greater than 3 characters in length.
 
+```javascript
+{
+  isPotentiallyValid: true,
+  isValid: true
+}
+```
+
+You can optionally pass `minLength` as a property of an object as a second argument. This will override the default min length of 3.
+
+```javascript
+valid.postalCode('123', {minLength: 5});
+
+{
+  isPotentiallyValid: true,
+  isValid: false
+}
+```
+
+## Custom Card Brands
+
+Card Validator exposes the [`credit-card-type` module](https://github.com/braintree/credit-card-type) as `creditCardType`. You can add custom card brands by [utilizing the `addCard` method](https://github.com/braintree/credit-card-type#adding-card-types).
+
+```javascript
+valid.creditCardType.addCard({
+  niceType: 'NewCard',
+  type: 'new-card',
+  prefixPattern: /^(2|23|234)$/,
+  exactPattern: /^(2345)\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16],
+  code: {
+    name: 'CVV',
+    size: 3
+  }
+});
+```
+
 ## Design decisions
 
-- The maximum expiration year is 19 years from now. ([view in source](src/expiration-year.js))
+- The default maximum expiration year is 19 years from now.
 - `valid.expirationDate` will only return `month:` and `year:` as strings if the two are valid, otherwise they will be `null`.
+- Since non-US postal codes are alpha-numeric, the `postalCode` will allow non-number characters to be used in validation.
 
 ## Development
 
@@ -267,3 +334,11 @@ npm install
 ```
 
 All testing dependencies will be installed upon `npm install`. Run the test suite with `npm test`.
+
+## Inlcude in Mindmeister
+
+Use browserify:
+
+```sh
+browserify index.js -o card-validator.js -s cardValidator
+```

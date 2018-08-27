@@ -1,7 +1,8 @@
+'use strict';
+
 var parseDate = require('./parse-date');
 var expirationMonth = require('./expiration-month');
 var expirationYear = require('./expiration-year');
-var isString = require('lodash/lang/isString');
 
 function verification(isValid, isPotentiallyValid, month, year) {
   return {
@@ -12,17 +13,23 @@ function verification(isValid, isPotentiallyValid, month, year) {
   };
 }
 
-function expirationDate(value) {
+function expirationDate(value, maxElapsedYear) {
   var date, monthValid, yearValid, isValidForThisYear;
 
-  if (!isString(value)) {
+  if (typeof value === 'string') {
+    value = value.replace(/^(\d\d) (\d\d(\d\d)?)$/, '$1/$2');
+    date = parseDate(value);
+  } else if (value !== null && typeof value === 'object') {
+    date = {
+      month: String(value.month),
+      year: String(value.year)
+    };
+  } else {
     return verification(false, false, null, null);
   }
 
-  value = value.replace(/^(\d\d) (\d\d(\d\d)?)$/, '$1/$2');
-  date = parseDate(value);
   monthValid = expirationMonth(date.month);
-  yearValid = expirationYear(date.year);
+  yearValid = expirationYear(date.year, maxElapsedYear);
 
   if (monthValid.isValid) {
     if (yearValid.isCurrentYear) {

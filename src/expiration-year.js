@@ -1,5 +1,6 @@
-var isString = require('lodash/lang/isString');
-var maxYear = 19;
+'use strict';
+
+var DEFAULT_VALID_NUMBER_OF_YEARS_IN_THE_FUTURE = 19;
 
 function verification(isValid, isPotentiallyValid, isCurrentYear) {
   return {
@@ -9,10 +10,12 @@ function verification(isValid, isPotentiallyValid, isCurrentYear) {
   };
 }
 
-function expirationYear(value) {
+function expirationYear(value, maxElapsedYear) {
   var currentFirstTwo, currentYear, firstTwo, len, twoDigitYear, valid, isCurrentYear;
 
-  if (!isString(value)) {
+  maxElapsedYear = maxElapsedYear || DEFAULT_VALID_NUMBER_OF_YEARS_IN_THE_FUTURE;
+
+  if (typeof value !== 'string') {
     return verification(false, false);
   }
   if (value.replace(/\s/g, '') === '') {
@@ -46,10 +49,10 @@ function expirationYear(value) {
 
   if (len === 2) {
     isCurrentYear = twoDigitYear === value;
-    valid = value >= twoDigitYear && value <= twoDigitYear + maxYear;
+    valid = value >= twoDigitYear && value <= twoDigitYear + maxElapsedYear;
   } else if (len === 4) {
     isCurrentYear = currentYear === value;
-    valid = value >= currentYear && value <= currentYear + maxYear;
+    valid = value >= currentYear && value <= currentYear + maxElapsedYear;
   }
 
   return verification(valid, valid, isCurrentYear);
